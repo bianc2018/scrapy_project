@@ -145,7 +145,7 @@ class AgentandProxy(object):
     def __init__(self, lists):
         self.agents = FakeUserAgent()
         self.proxys = lists
-        self.maxnum = 2
+        self.maxnum = 20
         self.i = 0
         self.User_Agent = self.agents.random
         self.proxy = random.choice(self.proxys)

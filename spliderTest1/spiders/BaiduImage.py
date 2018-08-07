@@ -15,7 +15,7 @@ class ExampleSpider(scrapy.Spider):
     imagejson = 'https://image.baidu.com/search/acjson?tn=resultjson_com&ipn=rj&queryWord=%s&word=%s&pn=%d'
     imagenum = 30
     maxnum = 30000
-    keywordlist = ['佐天泪子','御坂美琴','美女','动漫美女','魔法禁书目录',"元气","少女","伪恋"]
+    keywordlist = ['佐天泪子','御坂美琴','美女','动漫美女','魔法禁书目录',"元气","少女","伪恋","亚丝娜"]
     keyword = "佐天泪子"
     request_num = 30
     its = 0
@@ -33,22 +33,44 @@ class ExampleSpider(scrapy.Spider):
 
     def parse(self, response):
         images = json.loads(response.text,strict=False)['data']
+
         if len(images)==1:
             self.q = 1
+
         for image in images:
             try:
-                if 'fromPageTitleEnc' in image.keys():
-                    item = Image()
-                    url = self.convertObjURL(image['objURL'])
-                    path = self.keyword+'/'+str(self.its)+".jpg"
-                    if url == None:
-                        continue
-                    print(path,url)
-                    item['IMG_URL'] = [url]
-                    item['IMG_PATH'] = path
-                    self.its +=1
-                    print("获得item数量：",self.its,self.request_num)
-                    yield item
+                if len(image)==0:
+                    break
+                objitem = Image()
+                middleitem = Image()
+                hoveritem = Image()
+
+                objurl = self.convertObjURL(image['objURL'])
+                objpath = self.keyword+'/'+str(self.its)+'/'+'obj'+'/'+str(self.its)+"obj.jpg"
+                if objurl != "":
+                    print("objURL",objpath,objurl)
+                    objitem['IMG_URL'] = [objurl]
+                    objitem['IMG_PATH'] = objpath
+                    yield objitem
+
+                middleurl = image['middleURL']
+                middlepath = self.keyword + '/' + str(self.its) + '/' +'middle'+'/'+ str(self.its) + "middle.jpg"
+                if middleurl != "":
+                    print("middleURL", objpath, objurl)
+                    middleitem['IMG_URL'] = [middleurl]
+                    middleitem['IMG_PATH'] = middlepath
+                    yield middleitem
+
+                hoverurl = image['hoverURL']
+                hoverpath = self.keyword + '/' + str(self.its) + '/' +'hover'+'/'+str(self.its) + "hover.jpg"
+                if hoverurl!="":
+                    print("hoverURL", objpath, objurl)
+                    hoveritem['IMG_URL'] = [hoverurl]
+                    hoveritem['IMG_PATH'] = hoverpath
+                    yield hoveritem
+
+                self.its += 1
+                print("获得item数量：", self.its, self.request_num)
             except Exception as e:
                 print("发生错误：",str(e))
 
