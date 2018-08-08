@@ -26,14 +26,15 @@ class ExampleSpider(scrapy.Spider):
             self.q = 0
             while True:
                 url = self.imagejson%(self.keyword,self.keyword,self.request_num)
-                yield Request(url,callback=self.parse,dont_filter=True)
+                meta = {'keyword':self.keyword}
+                yield Request(url,callback=self.parse,dont_filter=True,meta=meta)
                 self.request_num+=self.imagenum
                 if self.request_num>=self.maxnum or self.q==1:
                     break
 
     def parse(self, response):
         images = json.loads(response.text,strict=False)['data']
-
+        title = response.meta['keyword']
         if len(images)==1:
             self.q = 1
 
@@ -46,7 +47,7 @@ class ExampleSpider(scrapy.Spider):
                 hoveritem = Image()
 
                 objurl = self.convertObjURL(image['objURL'])
-                objpath = self.keyword+'/'+str(self.its)+'/'+'obj'+'/'+str(self.its)+"obj.jpg"
+                objpath = title+'/'+'obj'+'/'+str(self.its)+"obj.jpg"
                 if objurl != "":
                     print("objURL",objpath,objurl)
                     objitem['IMG_URL'] = [objurl]
@@ -54,7 +55,7 @@ class ExampleSpider(scrapy.Spider):
                     yield objitem
 
                 middleurl = image['middleURL']
-                middlepath = self.keyword + '/' + str(self.its) + '/' +'middle'+'/'+ str(self.its) + "middle.jpg"
+                middlepath = title  + '/' +'middle'+'/'+ str(self.its) + "middle.jpg"
                 if middleurl != "":
                     print("middleURL", objpath, objurl)
                     middleitem['IMG_URL'] = [middleurl]
@@ -62,7 +63,7 @@ class ExampleSpider(scrapy.Spider):
                     yield middleitem
 
                 hoverurl = image['hoverURL']
-                hoverpath = self.keyword + '/' + str(self.its) + '/' +'hover'+'/'+str(self.its) + "hover.jpg"
+                hoverpath = title  + '/' +'hover'+'/'+str(self.its) + "hover.jpg"
                 if hoverurl!="":
                     print("hoverURL", objpath, objurl)
                     hoveritem['IMG_URL'] = [hoverurl]
